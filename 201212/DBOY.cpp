@@ -1,3 +1,4 @@
+//算法类似dij的想法。。。
 #include <iostream>
 using namespace std;
 
