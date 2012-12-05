@@ -1,119 +1,142 @@
 #include <iostream>
-#include <cmath>
 #include <stdio.h>
 #include <string.h>
-#include <string>
 #include <cstring>
+#include <string>
 using namespace std;
+ 
+const long long Mod = 1000000007; 
+#define LL long long
+ 
+LL CB[10005][10005];
+//LL YUCB1[400005];
+LL YUCB2[400005];
 
-const long long M = 1000000007; 
-long long ff[800005];  //打表，记录n!，避免重复计算
-long long comb[10009][10009];
-
-//求最大公因数
-long long gcd(long long a, long long b)
+inline LL fast(LL a,LL b,LL p)
 {
-    if(b==0)
-        return a;
-    else
-        return gcd(b,a%b);
+    LL s=1;
+    while(b)
+    {
+        if(b&1)
+        {
+            s=(s*a);
+            if (s > p)
+            {
+                s = s % p;
+            }
+            else if (s == p)
+            {
+                s = 0;
+            }
+        }
+        b=b>>1;
+        a=(a*a);
+        if (a > p)
+        {
+            a = a % p;
+        }
+        else if (a == p)
+        {
+            a = 0;
+        }
+    }
+ 
+    return s;
 }
-
-//解线性同余方程，扩展欧几里德定理
-long long x,y;
-void Extended_gcd(long long a, long long b)
+ 
+LL cal(LL a,LL b,LL p)
 {
-    if(b==0)
-    {
-       x=1;
-       y=0;
-    }
-    else
-    {
-       Extended_gcd(b,a%b);
-       long long t=x;
-       x=y;
-       y=t-(a/b)*y;
-    }
-}
-
-//计算不大的C(n,m)
-long long C(long long a, long long b)
-{
-
-    if(b>a)
-        return 0;
-   
-    if ( a < 10009 && b < 10009 && comb[a][b] != 0)
-        return comb[a][b];
-
-    if (a-1 > 0 && a-1 < 10009 && b < 10009 && b-1 > 0 && comb[a-1][b] != 0 && comb[a-1][b-1]!=0)
-    {
-        return (comb[a][b] = comb[a-1][b-1]+comb[a-1][b]);
-    }
-
-    b=(ff[a-b]*ff[b])%M;
-    a=ff[a];
-    long long c=gcd(a,b);
-    a/=c;
-    b/=c;
-    Extended_gcd(b,M);
-    x=(x+M)%M;
-    x=(x*a)%M;
+    if(a<b) return 0;
+    if(b>a-b) b=a-b;
+    LL ans=1,coma=1,comb=1;
     
-    if ( a < 10009 && b < 10009)
-        comb[a][b] = x;
-    return x;
-}
-
-//Lucas定理
-long long Combination(long long n, long long m)
-{
-    if (m == 0)
-        return 1;
-    if (m == n)
-        return 1;
-    if (m < 0 || m > n)
-        return 0;
-
-    if ( m < 10009 && n < 10009 && comb[n][m] != 0)
-        return comb[n][m];
+    if (a < 10005 && b < 10005 && CB[a][b] != 0)
+        return CB[a][b];
+ 
+    if (a-1>=0 && a-1<10005 && b-1>=0&&b<10005 && CB[a-1][b]!=0 && CB[a-1][b-1]!=0)
+    {
+        CB[a][b] = CB[a-1][b-1]+CB[a-1][b];
+        return CB[a][b];
+    }
+ 
+    for(LL i=0;i<b;i++)
+    {
+        coma=(coma*(a-i));
+        if (coma > p)
+        {
+            coma = coma % p;
+        }
+        else if (coma == p)
+        {
+            coma = 0;
+        }
+ 
+        comb=(comb*(b-i));
+        if (comb > p)
+        {
+            comb = comb % p;
+        }
+        else if (comb == p)
+        {
+            comb = 0;
+        }
+    }
+     
+    coma=coma*fast(comb,p-2,p);
+ 
+    if (coma > p)
+    {
+        coma = coma % p;
+    }
+    else if (coma == p)
+    {
+        coma = 0;
+    }
     
-    if (n - 1 > 0 && n-1 < 10009 && m < 10009 && m-1 > 0 && comb[n-1][m] != 0 && comb[n-1][m-1]!=0)
+    if (a < 10005 && b < 10005)
+        CB[a][b] = coma;
+ 
+    return coma;
+}
+ 
+LL Lucas(LL a,LL b,LL p)
+{
+    LL ans=1;
+    if (a < 10005 && b < 10005 && CB[a][b] != 0)
+        return CB[a][b];
+ 
+    if (a-1>=0 && a-1<10005 && b-1>=0&&b<10005 && CB[a-1][b]!=0 && CB[a-1][b-1]!=0)
     {
-        return (comb[n][m] = comb[n-1][m-1]+comb[n-1][m]);
+        CB[a][b] = CB[a-1][b-1]+CB[a-1][b];
+        return CB[a][b];
     }
-    long long ans=1;
-    long long a,b;
-    while(m||n)
+    while(a&&b&&ans)
     {
-        a=n%M;
-        b=m%M;
-        n/=M;
-        m/=M;
-        ans=(ans*C(a,b))%M;
+        ans=ans*cal(a%p,b%p,p);
+        a=a/p;
+        b=b/p;
     }
-        
-
-    if ( n < 10009 && m < 10009)
-        comb[n][m] = ans;
+ 
+    if (a < 10005 && b < 10005)
+        CB[a][b] = ans;
     return ans;
 }
-
+ 
 int main()
 {
     int R;
     scanf("%d", &R);
     long long n, m, a, b;
-    long long ans, sT;
-    ff[0]=1;
-    for(long long i=1;i<= 800004;i++)  //预计算n!
-    {
-        ff[i]=(ff[i-1]*i)%M;
-    }
-
+    long long ans;
+    CB[1][1] = 1;
+    CB[2][1] = 2;
+    CB[2][2] = 1;
+    
     while (R--)
     {
+        //memset(YUCB1, 0, sizeof(YUCB1));
+        memset(YUCB2, 0, sizeof(YUCB2));
+
         scanf("%lld %lld %lld %lld", &n, &m, &a, &b);   
         long long a2 = n - a;
         long long b2 = m - b;
@@ -123,37 +146,64 @@ int main()
             mab = b;
         if (a2 > b2)
             mab2 = b2;
-
+ 
         if (mab2 > mab)
         {
-            sT = n;
-            if (sT > m)
-                sT = m;
-            ans = (Combination(n+m, sT));
-
+            //ans = (Combination(n+m, sT));
+            ans = Lucas(n+m, n, Mod);
             for (long long tx = a; tx >= 1; --tx)
             {
                 long long ty = tx;
                 if (ty > b)
                     continue;
-
+ 
                 long long x = n - a + tx;
                 long long y = b - ty;
 
-                sT = x;
-                if (x > y)
-                    sT = y;
-                long long temp = Combination(x+y, sT);
+                long long sm = x;
+                if (sm > y)
+                    sm = x;
+                long long CXY;
+                /*if (YUCB1[sm] != 0)
+                {
+                    CXY = YUCB1[sm];
+                }
+                else
+                {*/
+                    CXY = Lucas(x+y, sm, Mod);//Combination(x+y, sT);
+                    /*YUCB1[sm] = CXY;
+                }*/
+                long long temp;
 
-                sT = n-x;
-                if (n-x > m-y)
-                    sT = m - y;
-                temp = (temp*( Combination(n-x+m-y, sT) ))%M;
+                sm = n - x;
+                if (sm > (m - y))
+                    sm = m - y;
 
+                if (YUCB2[sm] != 0)
+                {
+                    temp = YUCB2[sm];//Lucas(n-x+m-y, n-x, Mod);
+                }
+                else
+                {
+                    temp = Lucas(n-x+m-y, sm, Mod);
+                    YUCB2[sm] = temp;
+                }
+                temp = temp*CXY;
+                //temp = (CXY*( Lucas(n-x+m-y, n-x, Mod) ));
+ 
+                if (temp > Mod)
+                {
+                    temp = temp % Mod;
+                }
+                else if (temp == Mod)
+                {
+                    temp = 0;
+                }
+ 
                 ans -= temp;
                 while (ans < 0)
                 {
-                    ans += M;
+                    ans += Mod;
                 }
             }
         }
@@ -170,29 +220,62 @@ int main()
                     break;
                 if (y > m)
                     break;
-
-                sT = x;
-                if (x > y)
-                    sT = y;
-                long long temp = Combination(x+y, sT);
-
-                sT = n-x;
-                if (n-x > m-y)
-                    sT = m - y;
-                temp = (temp*( Combination(n-x+m-y, sT) ))%M;
-
-                ans += temp;
-                if (ans > M)
+ 
+                long long CXY;
+                
+                long long sm = x;
+               /* if (sm > y)
                 {
-                    ans = ans % M;
+                    sm = y;
+                }
+
+                if (YUCB1[sm] != 0)
+                {
+                    CXY = YUCB1[sm];
+                }
+                else
+                {*/
+                    CXY = Lucas(x+y, sm, Mod);//Combination(x+y, sT);
+                   /* YUCB1[sm] = CXY;
+                }*/
+                long long temp;
+
+                sm = n - x;
+                if (sm > (m - y))
+                    sm = m - y;
+
+                if (YUCB2[sm] != 0)
+                {
+                    temp = YUCB2[sm];//Lucas(n-x+m-y, n-x, Mod);
+                }
+                else
+                {
+                    temp = Lucas(n-x+m-y, sm, Mod);
+                    YUCB2[sm] = temp;
+                }
+                temp = temp*CXY;
+ 
+                if (temp > Mod)
+                {
+                    temp = temp % Mod;
+                }
+                else if (temp == Mod)
+                {
+                    temp = 0;
+                }
+ 
+                ans += temp;
+                if (ans >= Mod)
+                {
+                    ans = ans % Mod;
                 }
             }
         }
-
-        if (ans >= M)
-            ans = ans % M;
+ 
+        if (ans >= Mod)
+            ans = ans % Mod;
         printf("%lld\n", ans);
     }
+ 
     return 0;
 }
-
