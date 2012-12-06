@@ -60,7 +60,20 @@ LL getTable(LL a)
     {
         if (Table[a - index] != 0)
         {
-            return (com*Table[a - index])%Mod;
+            Table[a] = (com*Table[a - index])%Mod;
+
+            for (LL i = 1; i < 5; ++i)
+            {
+                if (a-i >= 0)
+                {
+                    Table[a - i] = Table[a - i + 1] /(a - i + 1);
+                }
+                if (a+i <= 800001)
+                {
+                    Table[a + i] = Table[a+i-1]*(a+i);
+                }
+            }
+            return Table[a];
         }
         else
         {
@@ -70,6 +83,18 @@ LL getTable(LL a)
         }
     }
 
+    Table[a] = com;
+    for (LL i = 1; i < 5; ++i)
+    {
+        if (a-i >= 0)
+        {
+            Table[a - i] = Table[a - i + 1] /(a - i + 1);
+        }
+        if (a+i <= 800001)
+        {
+            Table[a + i] = Table[a+i-1]*(a+i);
+        }
+    }
     return com;
 }
 
