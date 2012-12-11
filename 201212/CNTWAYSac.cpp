@@ -7,84 +7,107 @@
 // lucas(n,k,p)使用lucas定理求C(n,k)%p的值
 */
 
+#include <algorithm>
+#include <deque>
+#include <cassert>
+#include <cctype>
+#include <climits>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <functional>
+#include <iomanip>
 #include <iostream>
-#include <stdio.h>
+#include <iterator>
+#include <list>
+#include <map>
+#include <numeric>
+#include <queue>
+#include <set>
+#include <stack>
+#include <string>
+#include <utility>
+#include <vector>
+ 
 using namespace std;
  
+#define sz(a) int((a).size()) 
+#define pb push_back 
+#define all(c) (c).begin(),(c).end() 
+#define tr(c,i) for(typeof((c).begin()) i = (c).begin(); i != (c).end(); i++) 
+#define present(c,x) ((c).find(x) != (c).end()) 
+#define cpresent(c,x) (find(all(c),x) != (c).end())
+#define fr(i,m,n) for(int i=m; i<=n; ++i)
+#define ff first.first
+#define fs first.second
+#define ss second.second
+#define sf second.first
+
 const long long Mod = 1000000007; 
 #define LL long long
 
-LL Table[800005] = {1, 1, };
+typedef vector<int> vi;
+typedef vector<vi> vvi; 
+typedef pair<int,int> ii;
+typedef set<int> si;
+typedef vi::iterator vitr;
+typedef list<int> li;
+typedef li::iterator litr;
+typedef vector< vector< ii > > graph;
+ 
+#define MOD 1000000007
+ 
+int fact[800001], invfact[800001];
+ 
+int powmod(int base, int expo){
+	if(expo==0)
+		return 1;
+	else if(expo&1)
+		return (long long)base*powmod(base, expo-1)%MOD;
+	else{
+		int root=powmod(base, expo>>1);
+		return (long long)root*root%MOD;
+	}
+}
+ 
+int inverse(int x){
+	return powmod(x, MOD-2);
+}
+ 
+void init(){
+	fact[0]=1;
+	for(int i=1; i<=800000; i++)
+		fact[i]=(long long)i*fact[i-1]%MOD;
+	invfact[800000]=inverse(fact[800000]);
+	for(int i=800000; i>0; i--)
+		invfact[i-1]=(long long)i*invfact[i]%MOD;
+}
+ 
+long long nCr(int n, int r){
+	
+}
 
-inline LL fast(LL a,LL b,LL p)
-{
-    LL s=1;
-    while(b)
-    {
-        if(b&1)
-        {
-            s=(s*a);
-            if (s > p)
-            {
-                s = s % p;
-            }
-            else if (s == p)
-            {
-                s = 0;
-            }
-        }
-        b=b>>1;
-        a=(a*a);
-        if (a > p)
-        {
-            a = a % p;
-        }
-        else if (a == p)
-        {
-            a = 0;
-        }
-    }
- 
-    return s;
-}
- 
-LL cal(LL a,LL b,LL p)
-{
-    if(a<b) return 0;
-    if(b>a-b) b=a-b;
- 
-    long long coma=Table[a]*fast((Table[b]*Table[a-b])%p, p-2, p);
- 
-    if (coma > p)
-    {
-        coma = coma % p;
-    }
-    else if (coma == p)
-    {
-        coma = 0;
-    }
-    
-    return coma;
-}
- 
 LL Lucas(LL a,LL b,LL p)
 {
-    LL ans=1;
-    while(a&&b&&ans)
-    {
-        ans=ans*cal(a%p,b%p,p);
-        a=a/p;
-        b=b/p;
-    }
- 
-    return ans;
+LL n = a;
+LL r = b;
+	if(r>n || r<0)
+		return 0;
+	return (long long)((long long)fact[n]*invfact[r]%MOD)*invfact[n-r]%MOD;
+
 }
  
 int main()
 {
-    for (int i = 0; i < 5; ++i)
-        cout<<Table[i]<<endl;
-
+    init();
+   /* for (long index = 4005; index <= 800000; ++index)
+    {
+        Table[index] = Table[index-1]*index;
+        Table[index] %= Mod;
+    }
+ */
     int R;
     scanf("%d", &R);
     long long n, m, a, b;
@@ -125,9 +148,9 @@ int main()
                 
                 CXY1 %= Mod;
                 CXY2 %= Mod;
-
+ 
                 long long temp = CXY1 * CXY2;
-
+ 
                 if (temp > Mod)
                 {
                     temp = temp % Mod;
@@ -159,15 +182,15 @@ int main()
                     break;
                 if (y > m)
                     break;
-
+ 
                 //cout<<x<<" "<<y<<endl;
                     
                 CXY1 = Lucas(x+y, x, Mod);//Combination(x+y, sT);
                 CXY2 = Lucas(n-x+m-y, n-x, Mod);
-
+ 
                 CXY1 %= Mod;
                 CXY2 %= Mod;
-
+ 
                 long long temp = CXY1 * CXY2;
  
                 if (temp > Mod)
