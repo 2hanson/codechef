@@ -1,103 +1,102 @@
 #include <iostream>
-#include <vector>
 using namespace std;
 
-const int maxn = 20;
+const int maxn = 25;
 int N, K, M;
-int R[maxn];
+int r[maxn];
+int temp[maxn];
 int ans;
-void solve_dfs(int pos, int tans);
 
-void getMaxIndex(int left, int right, vector<int> &vec)
+void test()
 {
-    int max = R[left];
-    for (int i = left; i <= right; ++i)
+    for (int i = 0; i < N; ++i)
     {
-        if (R[i] > max)
+        cout<<temp[i]<<" ";
+    }
+    cout<<endl;
+}
+
+void init()
+{
+    cin>>N>>K>>M;
+    for (int i = 0; i < N; ++i)
+    {
+        cin>>r[i];
+    }
+}
+
+bool isOK(int cur)
+{
+    int i;
+    int num = 0;
+    int maxV = 0;
+    for (i = cur; i <= cur+K-1; ++i)
+    {
+        if (temp[i] == maxV)
         {
-            max = R[i];
+            ++num;
+        }
+        else if (temp[i] > maxV)
+        {
+            num = 1;
+            maxV = temp[i];
         }
     }
 
-    for (int i = left; i <= right; ++i)
+    return (num < M);
+}
+
+bool noarrest()
+{
+    for (int i = 0; i <= N-K; ++i)
     {
-        if (R[i] == max)
+        if (false == isOK(i))
+            return false;
+    }
+
+    return true;
+}
+
+void solve()
+{
+    ans = -1;
+    for (long k = 0; k < (1<<N); ++k)
+    {
+        int tans = 0;
+        for (int i = 0; i < N; ++i)
         {
-            vec.push_back(i);
-        }
-    }
-}
-
-bool destroy_pre(int cur)
-{
-    for (int pos = 1; pos < cur; ++pos)
-    {
-        vector<int> max_vec;
-        getMaxIndex(pos, pos+K-1, max_vec);
-        if (max_vec.size() >= M)
-            return true;
-    }
-
-    return false;
-}
-
-void inc_dfs(int index, int num, int pos, int tans, vector<int> &vec)
-{
-    if (ans != -1 && tans > ans)
-    {
-        return;
-    }
-    if (num < M)
-    {
-        solve_dfs(pos, tans);
-    }
-    if (index >= vec.size())
-        return;
-    ++R[vec[index]];
-    if (destroy_pre(pos) == true)
-    {
-        --R[vec[index]];
-        return;
-    }
-    cout<<"pos: "<<pos-1<<" index:"<<index<<endl;
-    for (int i = index + 1; i < vec.size(); ++i)
-    {
-        inc_dfs(i, num-1, pos, tans+1, vec);
-    }
-    --R[vec[index]];
-}
-
-void solve_dfs(int pos, int tans)
-{
-    if (ans != -1 && tans > ans)
-    {
-        return;
-    }
-    //pos, ..., pos+k-1
-    if (pos + K - 1 > N)
-    {
-        if (ans == -1 || ans > tans)
-        {
-            cout<<"solve: "<<tans<<endl;
-            for (int i = 1; i <= N; ++i)
+            long cur = 1 << i;
+            if (k & cur)
             {
-                cout<<R[i]<<endl;
+                ++tans;
+                temp[i] = r[i]+1;
             }
-            ans = tans;
+            else
+            {
+                temp[i] = r[i];
+            }
         }
-        return;
+
+        if (ans != -1 && tans > ans)
+        {
+            continue;
+        }
+
+        if (true == noarrest())
+        {
+            if (ans == -1 || tans < ans)
+            {
+                ans = tans;
+            }
+        }
     }
-    vector<int> max_vec;
-    getMaxIndex(pos, pos+K-1, max_vec);
-    
-    for (int index = 0; index < max_vec.size(); ++index)
-    {
-     //   cout<<"pos: "<<pos<<" : "<<index<<" : "<<max_vec[index]<<endl;
-        inc_dfs(index, max_vec.size(), pos+1, tans, max_vec);
-        //++R[ max_vec[index] ];
-        //solve_dfs(pos+1, tans);
-        //--R[ max_vec[index] ];
-    }
+
+    return;
+}
+
+void output()
+{
+    cout<<ans<<endl;
 }
 
 int main()
@@ -106,21 +105,10 @@ int main()
     cin>>T;
     while (T--)
     {
-        cin>>N>>K>>M;    
-        ans = -1;//max = 17
-        for (int i = 1; i <= N; ++i)
-        {
-            cin>>R[i];
-        }
+        init();
 
-        if (M == 1)
-        {
-            cout<<-1<<endl;
-            continue;
-        }
-        solve_dfs(1, 0);
-    
-        cout<<ans<<endl;
+        solve();
+        output();
     }
 
     return 0;
